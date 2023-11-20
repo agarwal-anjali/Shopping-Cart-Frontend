@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import {
   AppBar,
   Toolbar,
@@ -17,17 +17,20 @@ import {
 import MuiAlert from '@mui/material/Alert';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Switch from '@mui/material/Switch';
+import { useThemeContext} from '../../ThemeProvider';
+import ThemeProvider from '../../ThemeProvider';
 
 const Header = ({
   cart,
   openDrawer,
   closeDrawer,
   isDrawerOpen,
-  applyPromoCode,
   processPayment,
   updateQuantity,
   removeFromCart,
 }) => {
+  const [isPromoApplied, setIsPromoApplied] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [discountedPrice, setDiscountedPrice] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -39,19 +42,23 @@ const Header = ({
   };
 
   const calculateDiscountedPrice = () => {
-    // Apply promo code "HEYMAX20" for a 20% discount
-    const promoCodeDiscount = promoCode === 'HEYMAX20' ? 0.2 : 0;
-    return calculateTotalPrice() * (1 - promoCodeDiscount);
+    if (isPromoApplied) {
+      return setDiscountedPrice(calculateTotalPrice() * (1 - 0.2));
+    } else {
+      return setDiscountedPrice(null);
+    }
   };
 
   const handleApplyPromoCode = () => {
     if (promoCode === 'HEYMAX20') {
-      setDiscountedPrice(calculateDiscountedPrice());
+      setIsPromoApplied(true);
+      calculateDiscountedPrice();
       setSnackbarMessage('Promo code applied successfully!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } else {
-      setDiscountedPrice(null);
+      setIsPromoApplied(false);
+      calculateDiscountedPrice();
       setSnackbarMessage('Invalid promo code. Please try again.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -62,9 +69,24 @@ const Header = ({
     setSnackbarOpen(false);
   };
 
+  const { themeMode, toggleTheme } = useThemeContext();
+  const [isDarkMode, setIsDarkMode] = useState(themeMode === 'dark');
+
+  const handleThemeToggle = () => {
+    toggleTheme();
+  };
+
+  useEffect(() => {
+    setIsDarkMode(themeMode === 'dark');
+  }, [themeMode]);
+
+  useEffect(() => {
+    calculateDiscountedPrice();
+  })
+
   return (
     <>
-      <AppBar position="sticky">
+      <AppBar position="sticky" color='primary' enableColorOnDark>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Shopping App
@@ -74,6 +96,7 @@ const Header = ({
               <ShoppingCartIcon />
             </Badge>
           </IconButton>
+          <Switch checked={isDarkMode} onChange={handleThemeToggle} />
         </Toolbar>
       </AppBar>
 
@@ -100,8 +123,8 @@ const Header = ({
                   <div className="quantity-buttons">
                     <Grid container alignItems="center" spacing={1}>
                     <Grid item>
-                    <Button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="quantity-button">
-                      +
+                    <Button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="quantity-button">
+                      -
                     </Button>
                     </Grid>
                     <Grid item>
@@ -110,8 +133,8 @@ const Header = ({
                     </Typography>
                     </Grid>
                     <Grid item>
-                    <Button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="quantity-button">
-                      -
+                    <Button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="quantity-button">
+                      +
                     </Button>
                     </Grid>
                     </Grid>
@@ -128,7 +151,7 @@ const Header = ({
               Total Price: ${calculateTotalPrice().toFixed(2)}
             </Typography>
           </ListItem>
-          {promoCode && discountedPrice !== null && (
+          {(isPromoApplied && discountedPrice !== null && discountedPrice !== 0) && (
             <ListItem>
               <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'green' }}>
                 Discounted Price: ${discountedPrice.toFixed(2)}
@@ -137,7 +160,7 @@ const Header = ({
           )}
           <ListItem>
             <TextField
-              label="Enter Promo Code"
+              label={isPromoApplied? "Promo Code Applied" : "Enter Promo Code"}
               variant="outlined"
               value={promoCode}
               onChange={(e) => setPromoCode(e.target.value)}
@@ -163,7 +186,7 @@ const Header = ({
         <MuiAlert elevation={6} variant="filled" severity={snackbarSeverity}>
           {snackbarMessage}
         </MuiAlert>
-      </Snackbar>
+          </Snackbar>
     </>
   );
 };

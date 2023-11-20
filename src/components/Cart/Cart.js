@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../Header/Header';
 import HomePage from '../HomePage/HomePage';
-import { Snackbar, Typography, Button } from '@mui/material';
+import { Snackbar } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import './Cart.css';
 
@@ -33,18 +33,21 @@ const Cart = () => {
 
   const updateQuantity = (productId, newQuantity) => {
     setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.product.id === productId ? { ...item, quantity: newQuantity } : item
-      )
+      prevCart
+        .map((item) =>
+          item.product.id === productId ? { ...item, quantity: newQuantity } : item
+        )
+        .filter((item) => item.quantity > 0)
     );
   };
 
   const applyPromoCode = () => {
-    // Mocked logic for validating and applying the promo code
     if (promoCode === 'HEYMAX20') {
-      const discount = 0.2; // 20% discount
-      const newTotalPrice = cart.reduce((total, item) => total + item.quantity * item.product.price, 0);
-      const newDiscountedPrice = newTotalPrice - newTotalPrice * discount;
+      const discount = 0.2;
+      const newTotalPrice = cart.reduce(
+        (total, item) => total + item.quantity * item.product.price,
+        0
+      );
 
       setCart((prevCart) =>
         prevCart.map((item) => ({ ...item, originalPrice: item.quantity * item.product.price }))
@@ -78,9 +81,7 @@ const Cart = () => {
     setIsDrawerOpen(false);
   };
 
-  useEffect(() => {
-    // Your existing code for updating total price goes here
-  }, [cart]);
+  useEffect(() => {}, [cart]);
 
   return (
     <div className="cart-container">

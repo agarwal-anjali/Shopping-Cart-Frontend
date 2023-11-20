@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Typography,
   List,
-  ListItem,
   ListItemText,
   Button,
   Card,
@@ -30,6 +29,7 @@ const HomePage = ({ addToCart }) => {
 
   return (
     <div>
+      <br></br>
       <Typography variant="h6" sx={{ marginBottom: 2 }}>
         Explore our products:
       </Typography>
@@ -44,7 +44,7 @@ const HomePage = ({ addToCart }) => {
                 variant="contained"
                 onClick={() => handleAddToCart(product)}
                 startIcon={<AddIcon />}
-                sx={{ backgroundColor: '#793a99', color: 'white' }}
+                sx={{ backgroundColor: 'primary', color: 'white' }}
               >
                 Add to Cart
               </Button>

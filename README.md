@@ -1,4 +1,4 @@
-# Shopping Cart Fronted
+# Shopping Cart Frontend
 A basic shopping cart application built using React.js and Material UI.
 
 # Pre-requisites
